@@ -37,8 +37,13 @@ func main() {
 
 	defer system.Shutdown()
 
-	if !haveGUI || *cliFlag {
+	if (!haveGUI && !haveQt) || *cliFlag {
 		client := NewCLIClient(*stateFile, rand.Reader, false /* testing */, true /* autoFetch */)
+		client.disableV2Ratchet = true
+		client.dev = dev
+		client.Start()
+	} else if haveQt {
+		client := NewQtClient(*stateFile, rand.Reader, false /* testing */, true /* autoFetch */)
 		client.disableV2Ratchet = true
 		client.dev = dev
 		client.Start()

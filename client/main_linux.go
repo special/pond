@@ -63,8 +63,13 @@ func main() {
 		}
 	}
 
-	if !haveGUI || *cliFlag || len(os.Getenv("PONDCLI")) > 0 {
+	if (!haveGUI && !haveQt) || *cliFlag || len(os.Getenv("PONDCLI")) > 0 {
 		client := NewCLIClient(*stateFile, rand.Reader, false /* testing */, true /* autoFetch */)
+		client.disableV2Ratchet = true
+		client.dev = dev
+		client.Start()
+	} else if haveQt {
+		client := NewQtClient(*stateFile, rand.Reader, false /* testing */, true /* autoFetch */)
 		client.disableV2Ratchet = true
 		client.dev = dev
 		client.Start()
