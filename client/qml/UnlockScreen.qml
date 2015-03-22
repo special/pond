@@ -13,6 +13,10 @@ FocusScope {
         color: palette.window
     }
 
+    MouseArea {
+        anchors.fill: parent
+    }
+
     Label {
         id: lockIcon
         anchors {
