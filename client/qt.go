@@ -156,8 +156,15 @@ func (c *qtClient) createAccountUI(stateFile *disk.StateFile, pw string) (bool, 
 func (c *qtClient) keyPromptUI(stateFile *disk.StateFile) error {
 	return nil
 }
+
 func (c *qtClient) processFetch(msg *InboxMessage) {
+	qml.Lock()
+	defer qml.Unlock()
+
+	inboxMessages := c.mainWindow.ObjectByName("inboxMessages")
+	inboxMessages.Call("insertObject", 0, c.NewGuiInboxMessage(msg))
 }
+
 func (c *qtClient) processServerAnnounce(announce *InboxMessage) {
 }
 func (c *qtClient) processAcknowledgement(ackedMsg *queuedMessage) {

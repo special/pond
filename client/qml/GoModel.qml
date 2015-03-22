@@ -5,4 +5,7 @@ ListModel {
     function appendObject(obj) {
         append(obj)
     }
+    function insertObject(index, obj) {
+        insert(index, obj)
+    }
 }
