@@ -8,14 +8,9 @@ ApplicationWindow {
 
     data: [
         SystemPalette { id: palette },
-		ListModel {
-			id: inboxMessages
-			objectName: "inboxMessages"
-
-			function appendObject(msg) {
-				append(msg)
-			}
-		}
+        GoModel { id: inboxMessages; objectName: "inboxMessages" },
+        GoModel { id: outboxMessages; objectName: "outboxMessages" },
+        GoModel { id: draftMessages; objectName: "draftMessages" }
     ]
 
     toolBar: ToolBar {

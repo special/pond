@@ -9,6 +9,7 @@ Item {
 
     GridLayout {
         width: parent.width
+        height: parent.height
         columns: 2
 
         GridLayout {
@@ -17,8 +18,21 @@ Item {
 
             Label {
                 Layout.columnSpan: 2
-                text: mail.from
+                text: mail.contactName
                 font.bold: true
+            }
+
+            Label {
+                text: "Created"
+                color: "#666666"
+                font.capitalization: Font.SmallCaps
+                Layout.alignment: Qt.AlignRight
+                visible: createdTime.visible
+            }
+            Label {
+                id: createdTime
+                text: mail.createdTime
+                visible: text.length > 0
             }
 
             Label {
@@ -26,9 +40,25 @@ Item {
                 color: "#666666"
                 font.capitalization: Font.SmallCaps
                 Layout.alignment: Qt.AlignRight
+                visible: sentTime.visible
             }
             Label {
-                text: mail.time
+                id: sentTime
+                text: mail.sentTime
+                visible: text.length > 0
+            }
+
+            Label {
+                text: "Acknowledged"
+                color: "#666666"
+                font.capitalization: Font.SmallCaps
+                Layout.alignment: Qt.AlignRight
+                visible: ackedTime.visible
+            }
+            Label {
+                id: ackedTime
+                text: mail.ackedTime
+                visible: text.length > 0
             }
 
             Label {
@@ -36,9 +66,12 @@ Item {
                 color: "#666666"
                 font.capitalization: Font.SmallCaps
                 Layout.alignment: Qt.AlignRight
+                visible: eraseTime.visible
             }
             Label {
-                text: mail.time
+                id: eraseTime
+                text: mail.eraseTime
+                visible: text.length > 0
             }
         }
 
@@ -47,7 +80,10 @@ Item {
             Button { text: "Reply" }
             Button { text: "Ack" }
             Button { text: "Delete" }
-            CheckBox { text: "Retain" }
+            CheckBox {
+                text: "Retain"
+                checked: mail.retained
+            }
         }
 
         TextArea {

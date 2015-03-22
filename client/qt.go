@@ -21,28 +21,60 @@ type qtClient struct {
 	mainWindow *qml.Window
 }
 
+// XXX This can be separate types for each type of message..
 type guiMessage struct {
+	ContactName string
+
 	// InboxMessage
-	From         string
 	ReceivedTime string
 	Read         bool
 	Acked        bool
 	Retained     bool
 
+	// queuedMessage
+	CreatedTime string
+	AckedTime   string
+
 	// Message
-	Time string
-	Body string
+	SentTime  string
+	EraseTime string
+	Body      string
 }
 
-func (c *qtClient) NewGuiMessage(msg *InboxMessage) *guiMessage {
+func (c *qtClient) NewGuiInboxMessage(msg *InboxMessage) *guiMessage {
+	sentTime, eraseTime, body := msg.Strings()
+
 	re := &guiMessage{
-		From:         c.ContactName(msg.from),
-		ReceivedTime: msg.receivedTime.String(),
+		ContactName:  c.ContactName(msg.from),
+		ReceivedTime: msg.receivedTime.Format(time.RFC1123),
 		Read:         msg.read,
 		Acked:        msg.acked,
 		Retained:     msg.retained,
-		Time:         time.Unix(*msg.message.Time, 0).String(),
-		Body:         string(msg.message.Body),
+
+		SentTime:  sentTime,
+		EraseTime: eraseTime,
+		Body:      body,
+	}
+	return re
+}
+
+func (c *qtClient) NewGuiOutboxMessage(msg *queuedMessage) *guiMessage {
+	re := &guiMessage{
+		ContactName: c.ContactName(msg.to),
+		CreatedTime: msg.created.Format(time.RFC1123),
+		AckedTime:   msg.sent.Format(time.RFC1123),
+		SentTime:    msg.sent.Format(time.RFC1123),
+		EraseTime:   msg.created.Add(messageLifetime).Format(time.RFC1123),
+		Body:        string(msg.message.Body),
+	}
+	return re
+}
+
+func (c *qtClient) NewGuiDraftMessage(msg *Draft) *guiMessage {
+	re := &guiMessage{
+		ContactName: c.ContactName(msg.to),
+		CreatedTime: msg.created.Format(time.RFC1123),
+		Body:        string(msg.body),
 	}
 	return re
 }
@@ -177,15 +209,25 @@ func (c *qtClient) logEventUI(contact *Contact, event Event) {
 
 // mainUI starts the main interface.
 func (c *qtClient) mainUI() {
-
 	qml.Lock()
+	defer qml.Unlock()
+
 	inboxMessages := c.mainWindow.ObjectByName("inboxMessages")
 	for _, msg := range c.inbox {
-		fmt.Println("Adding message to inbox!")
-		inboxMessages.Call("appendObject", c.NewGuiMessage(msg))
+		inboxMessages.Call("appendObject", c.NewGuiInboxMessage(msg))
 	}
+
+	outboxMessages := c.mainWindow.ObjectByName("outboxMessages")
+	for _, msg := range c.outbox {
+		outboxMessages.Call("appendObject", c.NewGuiOutboxMessage(msg))
+	}
+
+	draftMessages := c.mainWindow.ObjectByName("draftMessages")
+	for _, msg := range c.drafts {
+		draftMessages.Call("appendObject", c.NewGuiDraftMessage(msg))
+	}
+
 	c.mainWindow.Show()
-	qml.Unlock()
 }
 
 func (c *qtClient) setupWindow() error {

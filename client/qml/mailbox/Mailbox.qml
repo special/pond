@@ -3,18 +3,19 @@ import QtQuick.Controls 1.0
 import QtQuick.Layouts 1.0
 
 Rectangle {
+    id: mailbox
     color: palette.base
     anchors.fill: parent
 
     property var pageData
-
-    data: [
-        ListModel {
-            id: model
-            ListElement { body: "message"; time: "March 15 20:20"; from: "First Guy" }
-            ListElement { body: "Message"; time: "March 14 1:39"; from: "Second Guy" }
+    property var model: {
+        switch (pageData.subview) {
+            case "inbox": return inboxMessages
+            case "outbox": return outboxMessages
+            case "drafts": return draftMessages
+            default: return 0
         }
-    ]
+    }
 
     SplitView {
         anchors.fill: parent
@@ -28,7 +29,7 @@ Rectangle {
                 id: mailsView
                 Layout.minimumWidth: 200
 
-                model: pageData.subview == "inbox" ? inboxMessages : model
+                model: mailbox.model
                 currentIndex: -1
 
                 delegate: Rectangle {
@@ -48,11 +49,11 @@ Rectangle {
                         x: 8
                         y: 8
                         Label {
-                            text: model.from
+                            text: model.contactName
                             color: delegate.ListView.isCurrentItem ? palette.highlightedText : palette.windowText
                         }
                         Label {
-                            text: model.time
+                            text: model.sentTime ? model.sentTime : model.createdTime
                             color: "#666666"
                         }
                     }
@@ -82,7 +83,7 @@ Rectangle {
                 id: mailViewComponent
 
                 MailView {
-                    mail: mailsView.currentIndex >= 0 ? mailsView.model.get(mailsView.currentIndex) : null
+                    mail: mailsView.currentIndex >= 0 ? mailbox.model.get(mailsView.currentIndex) : null
                     visible: mail !== null
                 }
             }
