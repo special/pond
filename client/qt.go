@@ -253,8 +253,6 @@ func (c *qtClient) logEventUI(contact *Contact, event Event) {
 // mainUI starts the main interface.
 func (c *qtClient) mainUI() {
 	qml.Lock()
-	defer qml.Unlock()
-
 	inboxMessages := c.mainWindow.ObjectByName("inboxMessages")
 	for _, msg := range c.inbox {
 		inboxMessages.Call("appendObject", c.NewGuiInboxMessage(msg))
@@ -272,6 +270,25 @@ func (c *qtClient) mainUI() {
 
 	c.mainWindow.Set("finishedLoading", true)
 	c.mainWindow.Show()
+	qml.Unlock()
+
+	for {
+		select {
+		case sigReq := <-c.signingRequestChan:
+			c.processSigningRequest(sigReq)
+		case newMessage := <-c.newMessageChan:
+			c.processNewMessage(newMessage)
+		case msr := <-c.messageSentChan:
+			if msr.id != 0 {
+				c.processMessageSent(msr)
+			}
+		case update := <-c.pandaChan:
+			c.processPANDAUpdate(update)
+		case <-c.backgroundChan: // XXX ???
+		case <-c.log.updateChan: // XXX ???
+		case <-c.timerChan: // XXX ??? - Not used by cli
+		}
+	}
 }
 
 func (c *qtClient) setupWindow() error {
