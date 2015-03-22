@@ -7,7 +7,15 @@ ApplicationWindow {
     height: 200
 
     data: [
-        SystemPalette { id: palette }
+        SystemPalette { id: palette },
+		ListModel {
+			id: inboxMessages
+			objectName: "inboxMessages"
+
+			function appendObject(msg) {
+				append(msg)
+			}
+		}
     ]
 
     toolBar: ToolBar {

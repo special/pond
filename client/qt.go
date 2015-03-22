@@ -18,6 +18,33 @@ const haveQt = true
 
 type qtClient struct {
 	client
+	mainWindow *qml.Window
+}
+
+type guiMessage struct {
+	// InboxMessage
+	From         string
+	ReceivedTime string
+	Read         bool
+	Acked        bool
+	Retained     bool
+
+	// Message
+	Time string
+	Body string
+}
+
+func (c *qtClient) NewGuiMessage(msg *InboxMessage) *guiMessage {
+	re := &guiMessage{
+		From:         c.ContactName(msg.from),
+		ReceivedTime: msg.receivedTime.String(),
+		Read:         msg.read,
+		Acked:        msg.acked,
+		Retained:     msg.retained,
+		Time:         time.Unix(*msg.message.Time, 0).String(),
+		Body:         string(msg.message.Body),
+	}
+	return re
 }
 
 func NewQtClient(stateFilename string, rand io.Reader, testing, autoFetch bool) *qtClient {
@@ -150,6 +177,15 @@ func (c *qtClient) logEventUI(contact *Contact, event Event) {
 
 // mainUI starts the main interface.
 func (c *qtClient) mainUI() {
+
+	qml.Lock()
+	inboxMessages := c.mainWindow.ObjectByName("inboxMessages")
+	for _, msg := range c.inbox {
+		fmt.Println("Adding message to inbox!")
+		inboxMessages.Call("appendObject", c.NewGuiMessage(msg))
+	}
+	c.mainWindow.Show()
+	qml.Unlock()
 }
 
 func (c *qtClient) setupWindow() error {
@@ -158,14 +194,13 @@ func (c *qtClient) setupWindow() error {
 	if err != nil {
 		return err
 	}
-	window := component.CreateWindow(nil)
-	window.Show()
-	window.Wait()
+	c.mainWindow = component.CreateWindow(nil)
+	go c.loadUI()
+	c.mainWindow.Wait()
 	return nil
 }
 
 func (c *qtClient) Start() {
-	go c.loadUI()
 	if err := qml.Run(c.setupWindow); err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(1) // XXX

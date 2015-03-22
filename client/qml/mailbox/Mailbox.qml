@@ -11,8 +11,8 @@ Rectangle {
     data: [
         ListModel {
             id: model
-            ListElement { text: "message"; date: "March 15 20:20"; from: "First Guy" }
-            ListElement { text: "Message"; date: "March 14 1:39"; from: "Second Guy" }
+            ListElement { body: "message"; time: "March 15 20:20"; from: "First Guy" }
+            ListElement { body: "Message"; time: "March 14 1:39"; from: "Second Guy" }
         }
     ]
 
@@ -28,7 +28,7 @@ Rectangle {
                 id: mailsView
                 Layout.minimumWidth: 200
 
-                model: model
+                model: pageData.subview == "inbox" ? inboxMessages : model
                 currentIndex: -1
 
                 delegate: Rectangle {
@@ -39,7 +39,7 @@ Rectangle {
 
                     MouseArea {
                         anchors.fill: parent
-                        onClicked: delegate.ListView.view.currentIndex = model.index
+                        onClicked: delegate.ListView.view.currentIndex = index
                     }
 
                     ColumnLayout {
@@ -48,11 +48,11 @@ Rectangle {
                         x: 8
                         y: 8
                         Label {
-                            text: model.text
+                            text: model.from
                             color: delegate.ListView.isCurrentItem ? palette.highlightedText : palette.windowText
                         }
                         Label {
-                            text: model.date
+                            text: model.time
                             color: "#666666"
                         }
                     }
@@ -82,7 +82,7 @@ Rectangle {
                 id: mailViewComponent
 
                 MailView {
-                    mail: mailsView.currentIndex >= 0 ? model.get(mailsView.currentIndex) : null
+                    mail: mailsView.currentIndex >= 0 ? mailsView.model.get(mailsView.currentIndex) : null
                     visible: mail !== null
                 }
             }

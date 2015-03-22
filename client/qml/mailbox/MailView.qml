@@ -28,7 +28,7 @@ Item {
                 Layout.alignment: Qt.AlignRight
             }
             Label {
-                text: mail.date
+                text: mail.time
             }
 
             Label {
@@ -38,7 +38,7 @@ Item {
                 Layout.alignment: Qt.AlignRight
             }
             Label {
-                text: mail.date
+                text: mail.time
             }
         }
 
@@ -57,7 +57,7 @@ Item {
             readOnly: true
             textFormat: TextEdit.PlainText
 
-            text: mail.text
+            text: mail.body
         }
     }
 }
