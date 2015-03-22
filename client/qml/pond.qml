@@ -7,6 +7,17 @@ ApplicationWindow {
     width: 960
     height: 500
 
+    property bool finishedLoading
+    onFinishedLoadingChanged: {
+        if (unlockLoader.active)
+            unlockLoader.active = false
+    }
+
+    function showKeyPrompt(handler) {
+        unlockLoader.active = true
+        unlockLoader.item.handler = handler
+    }
+
     data: [
         SystemPalette { id: palette },
         GoModel { id: inboxMessages; objectName: "inboxMessages" },
@@ -37,6 +48,19 @@ ApplicationWindow {
         PageView {
             id: other
             currentPage: sidebar.currentItem
+        }
+    }
+
+    Loader {
+        id: unlockLoader
+        anchors.fill: parent
+        active: false
+        sourceComponent: UnlockScreen {
+            id: unlockScreen
+            z: 100
+            focus: true
+
+            Component.onCompleted: unlockScreen.forceActiveFocus()
         }
     }
 }

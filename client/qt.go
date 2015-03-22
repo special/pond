@@ -153,8 +153,44 @@ func (c *qtClient) createErasureStorage(pw string, stateFile *disk.StateFile) er
 func (c *qtClient) createAccountUI(stateFile *disk.StateFile, pw string) (bool, error) {
 	return false, nil
 }
+
+type keyPromptAction struct {
+	client    *qtClient
+	stateFile *disk.StateFile
+	report    chan error
+}
+
+// Returns -1 on error, 0 on bad password, 1 on success
+func (action *keyPromptAction) TryPassword(password string) int {
+	err := action.client.loadState(action.stateFile, password)
+	if err == disk.BadPasswordError {
+		// Don't report error; try again
+		return 0
+	} else if err == nil {
+		// Success
+		action.report <- err
+		return 1
+	} else {
+		// Error
+		action.report <- err
+		return -1
+	}
+}
+
 func (c *qtClient) keyPromptUI(stateFile *disk.StateFile) error {
-	return nil
+	action := &keyPromptAction{
+		client:    c,
+		stateFile: stateFile,
+		report:    make(chan error),
+	}
+
+	qml.Lock()
+	c.mainWindow.Call("showKeyPrompt", action)
+	c.mainWindow.Show()
+	qml.Unlock()
+
+	err := <-action.report
+	return err
 }
 
 func (c *qtClient) processFetch(msg *InboxMessage) {
@@ -234,6 +270,7 @@ func (c *qtClient) mainUI() {
 		draftMessages.Call("appendObject", c.NewGuiDraftMessage(msg))
 	}
 
+	c.mainWindow.Set("finishedLoading", true)
 	c.mainWindow.Show()
 }
 
