@@ -77,9 +77,9 @@ Item {
 
         ColumnLayout {
             Layout.alignment: Qt.AlignTop | Qt.AlignRight
-            Button { text: "Reply" }
-            Button { text: "Ack" }
-            Button { text: "Delete" }
+            //Button { text: "Reply" }
+            //Button { text: "Ack" }
+            //Button { text: "Delete" }
             CheckBox {
                 text: "Retain"
                 checked: mail.retained
