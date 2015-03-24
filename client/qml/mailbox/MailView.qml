@@ -6,6 +6,15 @@ Item {
     id: mailview
 
     property var mail
+    property bool isActiveMail: mail != null && visible
+
+    // Synchronize with the message toolbar items
+    Binding {
+        target: toolBar
+        property: "messageToolsTarget"
+        when: isActiveMail
+        value: mail
+    }
 
     GridLayout {
         width: parent.width

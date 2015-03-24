@@ -11,7 +11,7 @@ ToolButton {
         verticalAlignment: Text.AlignVCenter
         text: icon
         font.family: iconFont.name
-        color: button.pressed ? "white" : "black"
+        color: button.enabled ? (button.pressed ? "white" : "black") : "#666666"
         font.pixelSize: 20
     }
 }

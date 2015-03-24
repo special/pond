@@ -87,6 +87,22 @@ Rectangle {
                     visible: mail !== null
                 }
             }
+
+            // Monitor for global position changes
+            Component.onCompleted: {
+                var p = mailView
+                while (p) {
+                    p.xChanged.connect(updatePosition)
+                    p = p.parent
+                }
+                updatePosition()
+            }
+
+            onVisibleChanged: updatePosition()
+            function updatePosition() {
+                if (visible)
+                    toolBar.messageToolsPosition = mapToItem(toolBar, 0, 0).x
+            }
         }
     }
 }

@@ -26,14 +26,8 @@ ApplicationWindow {
         FontLoader { id: iconFont; source: "./FontAwesome.otf" }
     ]
 
-    toolBar: ToolBar {
+    toolBar: PondToolBar {
         id: toolBar
-
-        RowLayout {
-            IconToolButton { icon: "\uf234" } // Add Contact
-            IconToolButton { icon: "\uf1d8" } // Compose
-            IconToolButton { icon: "\uf0ad" } // Settings
-        }
     }
 
     SplitView {
