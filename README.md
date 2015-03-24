@@ -1,3 +1,14 @@
+Pond (Qt Remix)
+====
+
+![Screenshot](https://i.imgur.com/gUVt5uX.png)
+
+This is a prototype of a new UI for Pond using go-qml. It might be prettier and more user-friendly. It's probably more non-Linux-friendly.
+
+Currently it can unlock and view messages. There's no account setup, send, or any other interactive features yet.
+
+Let me know if you find this interesting.
+
 Pond
 ====
 
