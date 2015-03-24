@@ -1,6 +1,7 @@
 import QtQuick 2.0
 import QtQuick.Controls 1.0
 import QtQuick.Layouts 1.0
+import "../dates.js" as Dates
 
 Rectangle {
     id: mailbox
@@ -38,23 +39,67 @@ Rectangle {
                     height: layout.height + 16
                     color: ListView.isCurrentItem ? palette.highlight : palette.base
 
+                    property color textColor: ListView.isCurrentItem ? palette.highlightedText : palette.windowText
+
                     MouseArea {
                         anchors.fill: parent
                         onClicked: delegate.ListView.view.currentIndex = index
                     }
 
-                    ColumnLayout {
-                        id: layout
-                        width: parent.width - 16
-                        x: 8
-                        y: 8
-                        Label {
-                            text: model.contactName
-                            color: delegate.ListView.isCurrentItem ? palette.highlightedText : palette.windowText
+                    Rectangle {
+                        anchors {
+                            bottom: parent.bottom
+                            left: parent.left
+                            leftMargin: 8
+                            right: parent.right
+                            rightMargin: 8
                         }
+                        height: 1
+                        visible: !delegate.ListView.isCurrentItem
+                        color: Qt.lighter(palette.mid, 1.4)
+                    }
+
+                    Column {
+                        id: layout
+                        spacing: 4
+                        anchors {
+                            left: parent.left
+                            leftMargin: 8
+                            right: parent.right
+                            rightMargin: 8
+                            top: parent.top
+                            topMargin: 8
+                        }
+
+                        Row {
+                            width: parent.width
+                            spacing: 8
+
+                            Label {
+                                text: model.contactName
+                                textFormat: Text.PlainText
+                                color: textColor
+                                font.bold: true
+                            }
+
+                            Label {
+                                width: parent.width - x
+                                text: Dates.prettyDate(model.sentTime ? model.sentTime : model.createdTime)
+                                color: textColor
+                                opacity: 0.8
+                                elide: Text.ElideRight
+                                horizontalAlignment: Qt.AlignRight
+                            }
+                        }
+
                         Label {
-                            text: model.sentTime ? model.sentTime : model.createdTime
-                            color: "#666666"
+                            width: parent.width
+                            text: model.body.substr(0, 100).replace('\n', ' ')
+                            textFormat: Text.PlainText
+                            color: textColor
+                            opacity: 0.6
+                            elide: Text.ElideRight
+                            maximumLineCount: 1
                         }
                     }
                 }

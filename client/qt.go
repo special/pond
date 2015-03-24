@@ -26,33 +26,40 @@ type guiMessage struct {
 	ContactName string
 
 	// InboxMessage
-	ReceivedTime string
+	ReceivedTime int64
 	Read         bool
 	Acked        bool
 	Retained     bool
 
 	// queuedMessage
-	CreatedTime string
-	AckedTime   string
+	CreatedTime int64
+	AckedTime   int64
 
 	// Message
-	SentTime  string
-	EraseTime string
+	SentTime  int64
+	EraseTime int64
 	Body      string
 }
 
 func (c *qtClient) NewGuiInboxMessage(msg *InboxMessage) *guiMessage {
-	sentTime, eraseTime, body := msg.Strings()
+	var sentTime, eraseTime time.Time
+	_, _, body := msg.Strings()
+	isPending := msg.message == nil
+
+	if !isPending {
+		sentTime = time.Unix(*msg.message.Time, 0)
+		eraseTime = msg.receivedTime.Add(messageLifetime)
+	}
 
 	re := &guiMessage{
 		ContactName:  c.ContactName(msg.from),
-		ReceivedTime: msg.receivedTime.Format(time.RFC1123),
+		ReceivedTime: msg.receivedTime.UnixNano() / 1000000,
 		Read:         msg.read,
 		Acked:        msg.acked,
 		Retained:     msg.retained,
 
-		SentTime:  sentTime,
-		EraseTime: eraseTime,
+		SentTime:  sentTime.UnixNano() / 1000000,
+		EraseTime: eraseTime.UnixNano() / 1000000,
 		Body:      body,
 	}
 	return re
@@ -61,10 +68,10 @@ func (c *qtClient) NewGuiInboxMessage(msg *InboxMessage) *guiMessage {
 func (c *qtClient) NewGuiOutboxMessage(msg *queuedMessage) *guiMessage {
 	re := &guiMessage{
 		ContactName: c.ContactName(msg.to),
-		CreatedTime: msg.created.Format(time.RFC1123),
-		AckedTime:   msg.sent.Format(time.RFC1123),
-		SentTime:    msg.sent.Format(time.RFC1123),
-		EraseTime:   msg.created.Add(messageLifetime).Format(time.RFC1123),
+		CreatedTime: msg.created.UnixNano() / 1000000,
+		AckedTime:   msg.sent.UnixNano() / 1000000,
+		SentTime:    msg.sent.UnixNano() / 1000000,
+		EraseTime:   msg.created.Add(messageLifetime).UnixNano() / 1000000,
 		Body:        string(msg.message.Body),
 	}
 	return re
@@ -73,7 +80,7 @@ func (c *qtClient) NewGuiOutboxMessage(msg *queuedMessage) *guiMessage {
 func (c *qtClient) NewGuiDraftMessage(msg *Draft) *guiMessage {
 	re := &guiMessage{
 		ContactName: c.ContactName(msg.to),
-		CreatedTime: msg.created.Format(time.RFC1123),
+		CreatedTime: msg.created.UnixNano() / 1000000,
 		Body:        string(msg.body),
 	}
 	return re

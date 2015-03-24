@@ -1,6 +1,7 @@
 import QtQuick 2.0
 import QtQuick.Controls 1.0
 import QtQuick.Layouts 1.0
+import "../dates.js" as Dates
 
 Item {
     id: mailview
@@ -40,8 +41,8 @@ Item {
             }
             Label {
                 id: createdTime
-                text: mail.createdTime
-                visible: text.length > 0
+                text: Dates.fullDate(mail.createdTime)
+                visible: mail.createdTime != 0
             }
 
             Label {
@@ -53,8 +54,8 @@ Item {
             }
             Label {
                 id: sentTime
-                text: mail.sentTime
-                visible: text.length > 0
+                text: Dates.fullDate(mail.sentTime)
+                visible: mail.sentTime != 0
             }
 
             Label {
@@ -66,8 +67,8 @@ Item {
             }
             Label {
                 id: ackedTime
-                text: mail.ackedTime
-                visible: text.length > 0
+                text: Dates.durationDate(mail.ackedTime)
+                visible: mail.ackedTime != 0
             }
 
             Label {
@@ -79,8 +80,8 @@ Item {
             }
             Label {
                 id: eraseTime
-                text: mail.eraseTime
-                visible: text.length > 0
+                text: Dates.durationDate(mail.eraseTime)
+                visible: mail.eraseTime != 0
             }
         }
 
